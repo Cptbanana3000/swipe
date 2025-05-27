@@ -1,0 +1,43 @@
+// E:\PROJECTS\swipe\tsconfig.base.json
+{
+    "compilerOptions": {
+      // Target ECMAScript version for emitted JavaScript
+      "target": "ES2020",
+  
+      // Specify module code generation
+      "module": "ESNext", // Good modern default, can be overridden by packages if needed (e.g., server to CommonJS)
+  
+      // How TypeScript finds modules
+      "moduleResolution": "node", // Or "bundler" with newer TS versions if using Vite/modern bundlers
+  
+      // Allow default imports from modules with no default export (like some older JS libs)
+      "esModuleInterop": true,
+  
+      // Enable all strict type-checking options - HIGHLY RECOMMENDED
+      "strict": true,
+  
+      // Skip type checking of all declaration files (*.d.ts) - can speed up builds
+      "skipLibCheck": true,
+  
+      // Ensure that casing is correct in imports
+      "forceConsistentCasingInFileNames": true,
+  
+      // Allow importing .json files
+      "resolveJsonModule": true,
+  
+      // Ensure each file can be safely transpiled without relying on other imports (good for some build tools)
+      "isolatedModules": true, // Vite often requires this for client-side code
+  
+      // --- Options often overridden by individual packages ---
+      // "outDir": "./dist", // Individual packages will usually define their own outDir
+      // "rootDir": "./src", // And their own rootDir
+      // "declaration": true, // Might be true for 'shared', false for 'client' if Vite handles types
+  
+      // --- Path Aliases (Optional, configure here if you want root-level aliases, or per-package) ---
+      // "baseUrl": ".", // If you want root-level aliases based on the root
+      // "paths": {
+      //   "@shared/*": ["packages/shared/src/*"]
+      // }
+    },
+    // "exclude": ["node_modules", "**/dist"] // You can also add root-level excludes
+  }

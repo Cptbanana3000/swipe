@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json", // Extends your root base config
+  "compilerOptions": {
+    "outDir": "./dist",         // Output directory for compiled JS and .d.ts files
+    "rootDir": "./src",         // Source directory
+    "declaration": true,        // IMPORTANT: Generates .d.ts files (type definitions)
+    "declarationMap": true,     // Optional: Generates sourcemaps for .d.ts files
+    "composite": true,          // Optional but good for project references if you use them
+    // "module": "ESNext"      // Or "CommonJS" depending on how you expect it to be consumed
+                               // by server (CommonJS) and client (ESNext). For libraries,
+                               // emitting both or using a modern format that both can handle
+                               // is ideal, but ESNext with proper module resolution often works.
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "swipe",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server"
+    
+  },
+  "keywords": [],
+  "author": "joel chhetri",
+  "license": "ISC",
+  "description": ""
+}
+
