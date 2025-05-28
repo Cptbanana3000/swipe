@@ -5,12 +5,28 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
+import { useAuth } from '../context/AuthContext';
+import { jwtDecode } from 'jwt-decode';
+
+// Define an interface for the expected JWT payload structure
+// This should match what you put in the payload on the server
+interface DecodedToken {
+    user: {
+      id: string;
+      username: string;
+      // Add other fields if they are in your JWT user payload
+    };
+    iat: number; // Issued at
+    exp: number; // Expires at
+  }
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const authContext = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -19,33 +35,44 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:3002/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to login');
+        const response = await fetch('http://localhost:3002/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to login');
+        }
+  
+        if (data.token) {
+          // Store the token (as before)
+          localStorage.setItem('authToken', data.token);
+          
+          // Decode the token to get user data for the context
+          // The 'user' object inside the decoded token should match AuthUser in AuthContext
+          const decodedToken = jwtDecode<DecodedToken>(data.token); 
+          
+          // Call the login function from AuthContext
+          authContext.login(data.token, decodedToken.user); 
+          
+          console.log('Login successful, token stored, auth context updated.');
+          navigate('/profile'); 
+        } else {
+          throw new Error('No token received');
+        }
+  
+      } catch (err: any) {
+        console.error('Login error:', err);
+        setError(err.message || 'An unknown error occurred during login.');
+      } finally {
+        setIsLoading(false);
       }
-
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
-        navigate('/profile'); // Or to a dashboard
-      } else {
-        throw new Error('No token received');
-      }
-
-    } catch (err: any) {
-      setError(err.message || 'An unknown error occurred during login.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
   return (
     <div className="container mx-auto min-h-screen flex flex-col md:flex-row items-center justify-center gap-8 p-4 md:p-8">

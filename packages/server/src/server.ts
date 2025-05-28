@@ -177,6 +177,25 @@ app.put('/api/profile/me', authMiddleware, (async (req: Request, res: Response) 
   }
 }) as RequestHandler);
 
+// Add GET endpoint for fetching user profile
+app.get('/api/profile/me', authMiddleware, (async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    const userProfile = await UserProfileModel.findById(req.user.id).select('-password');
+    
+    if (!userProfile) {
+      return res.status(404).json({ message: 'User profile not found' });
+    }
+
+    res.json(userProfile);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Server error fetching profile' });
+  }
+}) as RequestHandler);
 
 // Your GET /api/users route (should still work, will fetch users but won't show password)
 app.get('/api/users', (async (req: Request, res: Response) => {
