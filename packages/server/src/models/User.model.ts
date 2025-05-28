@@ -5,6 +5,7 @@ import { UserProfile } from '@swipe/shared'; // Import your shared interface
 // We'll create an interface that extends both Mongoose's Document and your UserProfile
 // This gives you Mongoose document methods (like .save()) and strong typing from your shared interface.
 export interface IUserProfileDocument extends Omit<UserProfile, 'id'>, Document {
+    password?: string;
   // You can add any instance methods for your Mongoose model here if needed later
   // For example:
   // getFullName(): string;
@@ -27,6 +28,12 @@ const UserProfileSchema: Schema<IUserProfileDocument> = new Schema(
       lowercase: true, // Stores email in lowercase
       // You might add a match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address.'] for validation
     },
+    password: {
+      type: String,
+      required: true,
+    },
+
+
     isVerifiedFreelancer: {
       type: Boolean,
       default: false,
@@ -43,6 +50,22 @@ const UserProfileSchema: Schema<IUserProfileDocument> = new Schema(
       type: [String],
       default: [],
     },
+
+    firstName: { type: String, trim: true },
+    lastName: { type: String, trim: true },
+    profilePictureUrl: { type: String, trim: true },
+    location: { type: String, trim: true },
+    headline: { type: String, trim: true },
+    hourlyRate: { type: Number },
+    availability: { type: String, trim: true },
+    companyName: { type: String, trim: true },
+    companyWebsite: { type: String, trim: true },
+    socialLinks: { // Example for an object
+      linkedin: { type: String, trim: true },
+      github: { type: String, trim: true },
+      website: { type: String, trim: true },
+    }
+  
     // createdAt is automatically handled by timestamps: true
   },
   {
@@ -51,16 +74,32 @@ const UserProfileSchema: Schema<IUserProfileDocument> = new Schema(
   }
 );
 
+
+
 // Optional: If you want 'id' to be available as a virtual instead of just '_id'
 UserProfileSchema.virtual('id').get(function(this: IUserProfileDocument) {
   return (this._id as mongoose.Types.ObjectId).toHexString();
 });
+
+UserProfileSchema.virtual('fullName').get(function() {
+    if (this.firstName && this.lastName) {
+      return `${this.firstName} ${this.lastName}`;
+    }
+    if (this.firstName) {
+      return this.firstName;
+    }
+    if (this.lastName) {
+      return this.lastName;
+    }
+    return ''; // Or undefined, or null
+  });
 
 UserProfileSchema.set('toJSON', {
   virtuals: true,
   transform: (doc, ret) => {
     delete ret._id; // remove _id
     delete ret.__v; // remove __v
+    delete ret.password; // remove password
   },
 });
 

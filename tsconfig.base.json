@@ -1,6 +1,12 @@
 // E:\PROJECTS\swipe\tsconfig.base.json
 {
     "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@client/*": ["packages/client/src/*"],
+        "@server/*": ["packages/server/src/*"],
+        "@shared/*": ["packages/shared/src/*"]
+      },
       // Target ECMAScript version for emitted JavaScript
       "target": "ES2020",
   
