@@ -1,10 +1,13 @@
 // swipe/packages/shared/src/types/user.types.ts
+export type UserRole = 'freelancer' | 'client';
+
 export interface User {
     id: string;
     username: string;
     email: string;
     isVerifiedFreelancer: boolean;
     createdAt: Date;
+    role: UserRole;
   }
   
   export interface UserProfile extends User { // Example of extending an interface
@@ -28,4 +31,5 @@ export interface User {
     github?: string;
     website?: string; // Personal portfolio or company site
   }
+  role: UserRole;
   }

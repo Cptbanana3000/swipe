@@ -1,56 +1,77 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Label } from "../components/ui/label";
+import { registerFormSchema, type RegisterFormValues } from '../lib/schemas/auth.schemas';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../components/ui/form";
+import type { UserRole } from '@swipe/shared';
 
 const RegisterPage = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+    const [apiError, setApiError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams(); // For reading URL query params
+    const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  
+    const form = useForm<RegisterFormValues>({ // RegisterFormValues is now imported
+      resolver: zodResolver(registerFormSchema), // registerFormSchema is now imported
+      defaultValues: {
+        username: "",
+        email: "",
+        password: "",
+        
+      },
+    });
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    // Basic client-side validation (add more as needed)
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:3002/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to register');
-      }
-
-      console.log('Registration successful:', data);
-      // Redirect to login page with a success message/state
-      navigate('/login?status=registration_success');
-
-    } catch (err: any) {
-      console.error('Registration error:', err);
-      setError(err.message || 'An unknown error occurred during registration.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    useEffect(() => {
+        const roleFromQuery = searchParams.get('role') as UserRole;
+        if (roleFromQuery && (roleFromQuery === 'freelancer' || roleFromQuery === 'client')) {
+          setSelectedRole(roleFromQuery);
+          console.log("Selected role:", roleFromQuery);
+        } else {
+          // Optional: Redirect to homepage or show role selection if no role is passed
+          console.warn("No valid role specified in URL, defaulting or consider redirecting.");
+          // navigate('/'); // Example redirect
+        }
+      }, [searchParams, navigate]);
+    
+      const onSubmit = async (values: RegisterFormValues) => {
+        if (!selectedRole) {
+          setApiError("Please select a role first (e.g., by starting from the homepage).");
+          return;
+        }
+        setIsLoading(true);
+        setApiError(null);
+    
+        try {
+          const response = await fetch('http://localhost:3002/api/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ...values, role: selectedRole }), // <-- ADD ROLE HERE
+          });
+    
+          const responseData = await response.json();
+          if (!response.ok) {
+            throw new Error(responseData.message || 'Failed to register');
+          }
+    
+          console.log('Registration successful:', responseData);
+          navigate('/login?status=registration_success');
+    
+        } catch (err: any) {
+          console.error('Registration error:', err);
+          setApiError(err.message || 'An unknown error occurred during registration.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+    
 
   return (
     <div className="container mx-auto min-h-screen flex flex-col md:flex-row items-center justify-center gap-8 
@@ -77,48 +98,60 @@ const RegisterPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Choose a username"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={isLoading}
+          <Form {...form}> {/* Spread the form methods */}
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                {/* Username Field (You already did this one perfectly!) */}
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Choose a username" {...field} disabled={isLoading} />
+                      </FormControl>
+                      {/* <FormDescription>This will be your public display name.</FormDescription> */}
+                      <FormMessage /> {/* Displays validation errors for 'username' */}
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
+
+                {/* Email Field */}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email address</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="you@example.com" {...field} disabled={isLoading} />
+                      </FormControl>
+                      <FormMessage /> {/* Displays validation errors for 'email' */}
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Create a strong password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
+
+                {/* Password Field */}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Create a strong password" {...field} disabled={isLoading} />
+                      </FormControl>
+                      <FormMessage /> {/* Displays validation errors for 'password' */}
+                    </FormItem>
+                  )}
                 />
-              </div>
-              {error && <p className="text-sm text-destructive pt-2">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Signing Up...' : 'Sign Up'}
-              </Button>
-            </form>
+                
+                {apiError && <p className="text-sm text-destructive pt-2">{apiError}</p>}
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Signing Up...' : 'Sign Up'}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
           <CardFooter className="text-xs text-muted-foreground text-center block">
             By signing up, you agree to our{' '}

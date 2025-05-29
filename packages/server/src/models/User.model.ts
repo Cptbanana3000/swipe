@@ -1,11 +1,12 @@
 // swipe/packages/server/src/models/User.model.ts
 import mongoose, { Schema, Document } from 'mongoose';
-import { UserProfile } from '@swipe/shared'; // Import your shared interface
+import { UserProfile} from '@swipe/shared'; // Import your shared interface
 
 // We'll create an interface that extends both Mongoose's Document and your UserProfile
 // This gives you Mongoose document methods (like .save()) and strong typing from your shared interface.
 export interface IUserProfileDocument extends Omit<UserProfile, 'id'>, Document {
     password?: string;
+    role: 'freelancer' | 'client';
   // You can add any instance methods for your Mongoose model here if needed later
   // For example:
   // getFullName(): string;
@@ -30,6 +31,11 @@ const UserProfileSchema: Schema<IUserProfileDocument> = new Schema(
     },
     password: {
       type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ['freelancer', 'client'],
       required: true,
     },
 
@@ -64,7 +70,8 @@ const UserProfileSchema: Schema<IUserProfileDocument> = new Schema(
       linkedin: { type: String, trim: true },
       github: { type: String, trim: true },
       website: { type: String, trim: true },
-    }
+    },
+   
   
     // createdAt is automatically handled by timestamps: true
   },

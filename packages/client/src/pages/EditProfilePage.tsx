@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { UserProfile } from '@swipe/shared';
 import { getMyProfile, updateMyProfile } from '@/services/userService'; // Make sure path is correct
-
+import { toast } from 'sonner';
 const EditProfilePage = () => {
   const { token } = useAuth(); // Get token to ensure user is logged in before fetching
   const navigate = useNavigate();
@@ -107,9 +107,14 @@ const EditProfilePage = () => {
       await updateMyProfile(dataToSubmit);
       // TODO: Consider updating AuthContext user if it stores full profile,
       // or rely on ProfilePage re-fetching.
-      navigate('/profile'); // Navigate back to view profile
+      toast.success('Profile updated successfully');
+
+      setTimeout(() => {
+        navigate('/profile'); // Navigate back to view profile
+      }, 1500);
     } catch (err: any) {
       console.error("EditProfilePage: Failed to update profile.", err);
+      toast.error('Failed to update profile.');
       setError(err.message || "Failed to update profile.");
     } finally {
       setIsSaving(false);

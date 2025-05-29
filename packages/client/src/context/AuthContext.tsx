@@ -1,7 +1,7 @@
 // swipe/packages/client/src/context/AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { UserProfile } from '@swipe/shared'; // Assuming your shared UserProfile type
+import type { UserProfile, UserRole } from '@swipe/shared'; // Assuming your shared UserProfile type
 
 // Define the shape of your user object (you might want to refine this)
 // For now, let's assume the decoded JWT payload gives us id and username.
@@ -9,6 +9,7 @@ import type { UserProfile } from '@swipe/shared'; // Assuming your shared UserPr
 interface AuthUser {
   id: string;
   username: string;
+  role: UserRole;
   // Add other fields you get directly from the JWT payload if any
 }
 

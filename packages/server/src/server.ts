@@ -9,6 +9,7 @@ import connectDB from './config/db';
 import UserProfileModel, { IUserProfileDocument } from './models/User.model';
 import authMiddleware from './middleware/auth.middleware';
 import { UserProfile } from '@swipe/shared';
+
 // ... (any other imports)
 
 connectDB();
@@ -23,15 +24,20 @@ app.use(cors()); // Make sure CORS is still here if you added it
 // Consider renaming the route from /api/users to /api/auth/register
 app.post('/api/auth/register', (async (req: Request, res: Response) => { // Renamed route
   try {
-    const { username, email, password, isVerifiedFreelancer, bio, skills, portfolioLinks } = req.body;
-
-    // Basic validation
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'Username, email, and password are required' });
-    }
-    if (password.length < 6) { // Match minlength in schema if you set it
-        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
-    }
+    const { username, email, password, isVerifiedFreelancer, bio, skills, portfolioLinks, role } = req.body;
+      // Updated validation
+      if (!username || !email || !password || !role) { // <-- ADD role check
+        return res.status(400).json({ message: 'Username, email, password, and role are required' });
+      }
+  
+      // Validate role value
+      if (!['freelancer', 'client'].includes(role)) { // <-- ADD role value check
+          return res.status(400).json({ message: 'Invalid role specified. Must be "freelancer" or "client".' });
+      }
+  
+      if (password.length < 6) {
+          return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      }
 
     // Check if user already exists
     const existingUser = await UserProfileModel.findOne({ $or: [{ email }, { username }] });
@@ -47,6 +53,7 @@ app.post('/api/auth/register', (async (req: Request, res: Response) => { // Rena
       username,
       email,
       password: hashedPassword, // <-- STORE THE HASHED PASSWORD
+      role,
       isVerifiedFreelancer,
       bio,
       skills,
@@ -89,6 +96,7 @@ app.post('/api/auth/login', (async (req: Request, res: Response) => {
       user: {
         id: user.id, // or user._id.toString() if you don't have the virtual 'id'
         username: user.username,
+        role: user.role,
         // You can add more non-sensitive info to the payload if needed
       },
     };
