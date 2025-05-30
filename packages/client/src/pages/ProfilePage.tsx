@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Github, Linkedin, Globe } from 'lucide-react';
 
-import type { UserProfile } from '@swipe/shared'; // Assuming this type might eventually support richer portfolioLinks
+import type { UserProfile, Project } from '@swipe/shared'; // Assuming this type might eventually support richer portfolioLinks
 import { getMyProfile } from '@/services/userService';
 
 const getInitials = (firstName?: string, lastName?: string, username?: string) => {
@@ -188,75 +188,57 @@ const ProfilePage = () => {
               </Card>
             )}
 
-            {/* Projects Section - Styling to match design's project card appearance as much as possible */}
-            {/* Given constraints, content of each "project" will be limited */}
-            {profile.portfolioLinks && profile.portfolioLinks.length > 0 && (
-              <Card className="border-gray-200 shadow-sm">
+{profile.projects && profile.projects.length > 0 && (
+              <Card className="border-gray-200 shadow-sm"> {/* Matches your other card styling */}
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold text-gray-700">Projects</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5 pt-0">
-                  {profile.portfolioLinks.map((link, index) => (
-                    // Each link item styled as a card.
-                    // For full design match (title, description, tags), 'link' would need to be an object.
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 group hover:shadow-md transition-shadow duration-150 ease-in-out">
-                      {/* The design shows project titles, descriptions, and tags. This cannot be achieved if 'link' is just a URL string. */}
-                      {/* We'll display the link URL in a way that implies it's a project. */}
-                       {/* Placeholder for structured content if data model changes later */}
-                       {typeof link === 'string' && link.startsWith('example:') ? (
-                        // This is a speculative part, if you had a way to encode title in the link string
-                        // For now, this won't trigger with plain URLs.
-                        <>
-                          <h3 className="font-semibold text-md text-gray-800 mb-1">{link.split(':')[1]}</h3>
-                           {/* <p className="text-xs text-gray-500 mb-2">Description would go here...</p>
-                           <div className="flex flex-wrap gap-1 mb-2">
-                             <Badge variant="secondary" className="text-xs">Tag1</Badge>
-                             <Badge variant="secondary" className="text-xs">Tag2</Badge>
-                           </div> */}
-                           <a href={link.split(':')[2]} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center">
+                  {profile.projects.map((project: Project, index: number) => ( // Explicitly type project
+                    <div key={project._id || index} className="bg-white border border-gray-200 rounded-lg p-4 group hover:shadow-md transition-shadow duration-150 ease-in-out">
+                      <h3 className="font-semibold text-md text-gray-800 mb-1">{project.title}</h3>
+                      <p className="text-xs text-gray-500 mb-2 whitespace-pre-wrap">{project.description}</p>
+                      {project.technologies && project.technologies.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {project.technologies.map(tech => (
+                            <Badge 
+                              key={tech} 
+                              variant="secondary" 
+                              className="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded-md" // Styled like skill badges
+                            >
+                              {tech}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex space-x-4">
+                        {project.projectUrl && (
+                          <a 
+                            href={project.projectUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center"
+                          >
                             View Project <ExternalLink size={14} className="ml-1.5" />
                           </a>
-                        </>
-                      ) : (
-                        // Default rendering for string URLs
-                        <a href={link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center">
-                          {/* Attempt to make the link text a bit nicer */}
-                          {formatLinkText(link)}
-                          <ExternalLink size={14} className="ml-1.5 flex-shrink-0 text-gray-400 group-hover:text-blue-600" />
-                        </a>
-                      )}
+                        )}
+                        {project.repositoryUrl && (
+                          <a 
+                            href={project.repositoryUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center"
+                          >
+                            View Code <Github size={14} className="ml-1.5" />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   ))}
-                  {/* Static example of how project cards from the design would look IF data was available */}
-                  {/* This is for visual reference and would require data changes */}
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 group hover:shadow-md transition-shadow duration-150 ease-in-out opacity-50">
-                      <h3 className="font-semibold text-md text-gray-800 mb-1">E-commerce Platform (Design Example)</h3>
-                      <p className="text-xs text-gray-500 mb-2">A full featured online store with user authentication, product listings, cart functionality, and payment integration.</p>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 text-xs">React</Badge>
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 text-xs">Node.js</Badge>
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 text-xs">Stripe API</Badge>
-                      </div>
-                      <a href="#" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center">
-                          View Project <ExternalLink size={14} className="ml-1.5" />
-                      </a>
-                  </div>
-                   <div className="bg-white border border-gray-200 rounded-lg p-4 group hover:shadow-md transition-shadow duration-150 ease-in-out opacity-50">
-                      <h3 className="font-semibold text-md text-gray-800 mb-1">Task Management App (Design Example)</h3>
-                      <p className="text-xs text-gray-500 mb-2">A collaborative tool for teams to organize, track, and manage projects and tasks efficiently.</p>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 text-xs">Vue.js</Badge>
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 text-xs">Firebase</Badge>
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 text-xs">Tailwind CSS</Badge>
-                      </div>
-                      <a href="#" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center">
-                          View Demo <ExternalLink size={14} className="ml-1.5" />
-                      </a>
-                  </div>
                 </CardContent>
               </Card>
             )}
-            
+
             <div className="flex justify-end mt-8">
               <Button onClick={logout} variant="outline" className="text-red-600 border-red-500 hover:bg-red-50 hover:text-red-700">
                 Logout

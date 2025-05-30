@@ -10,6 +10,7 @@ interface AuthUser {
   id: string;
   username: string;
   role: UserRole;
+  profileSetupComplete: boolean;
   // Add other fields you get directly from the JWT payload if any
 }
 
@@ -20,6 +21,7 @@ interface AuthContextType {
   isLoading: boolean; // To handle initial loading of token from localStorage
   login: (newToken: string, userData: AuthUser) => void;
   logout: () => void;
+  markProfileSetupComplete: () => void; 
   // We might add a function to fetch and set the full UserProfile later
 }
 
@@ -78,6 +80,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log("AuthContext: Logged out");
   };
 
+  const markProfileSetupComplete = () => {
+    setUser(prevUser => prevUser ? ({ ...prevUser, profileSetupComplete: true }) : null);
+  };
+
   return (
     <AuthContext.Provider value={{ 
         token, 
@@ -85,7 +91,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAuthenticated: !!token, // True if token exists
         isLoading, 
         login, 
-        logout 
+        logout,
+        markProfileSetupComplete
     }}>
       {children}
     </AuthContext.Provider>

@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 // Import AuthContext
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'sonner';
 
 // Define an interface for the expected JWT payload structure
 interface DecodedToken {
@@ -25,6 +26,7 @@ interface DecodedToken {
     id: string;
     username: string;
     role: UserRole;
+    profileSetupComplete: boolean;
   };
   iat: number;
   exp: number;
@@ -72,9 +74,21 @@ const LoginPage = () => {
         authContext.login(responseData.token, decodedToken.user);
         
         console.log('Login successful, token stored, auth context updated.');
-        navigate('/profile');
+       // NEW NAVIGATION LOGIC
+    if (decodedToken.user.profileSetupComplete) {
+        // Navigate to role-specific dashboard or main profile view
+        if (decodedToken.user.role === 'freelancer') {
+          navigate('/profile'); // Or /freelancer-dashboard
+        } else if (decodedToken.user.role === 'client') {
+          navigate('/client-dashboard'); // Or /client-profile (you'll create this)
+        } else {
+          navigate('/profile'); // Fallback
+        }
       } else {
-        throw new Error('No token received');
+        // Profile setup is not complete, navigate to edit profile page
+        toast.info("Let's complete your profile setup!");
+        navigate('/profile/edit'); 
+      }
       }
 
     } catch (err: any) {

@@ -97,6 +97,7 @@ app.post('/api/auth/login', (async (req: Request, res: Response) => {
         id: user.id, // or user._id.toString() if you don't have the virtual 'id'
         username: user.username,
         role: user.role,
+        ProfileSetupComplete: user.ProfileSetupComplete,
         // You can add more non-sensitive info to the payload if needed
       },
     };
@@ -142,31 +143,32 @@ app.put('/api/profile/me', authMiddleware, (async (req: Request, res: Response) 
       headline,
       bio,
       skills,
-      portfolioLinks,
+      projects,
       hourlyRate,
       availability,
       companyName,
       companyWebsite,
       experienceLevel,
-      socialLinks
+      socialLinks,
+      ProfileSetupComplete
     } = req.body;
 
     const updatedFields: Partial<UserProfile> = {};
-    if (firstName !== undefined) updatedFields.firstName = firstName; // <-- CHANGED
-    if (lastName !== undefined) updatedFields.lastName = lastName;   // <-- CHANGED
+    if (firstName !== undefined) updatedFields.firstName = firstName;
+    if (lastName !== undefined) updatedFields.lastName = lastName;
     if (profilePictureUrl !== undefined) updatedFields.profilePictureUrl = profilePictureUrl;
     if (location !== undefined) updatedFields.location = location;
     if (headline !== undefined) updatedFields.headline = headline;
     if (bio !== undefined) updatedFields.bio = bio;
     if (skills !== undefined) updatedFields.skills = skills;
-    if (portfolioLinks !== undefined) updatedFields.portfolioLinks = portfolioLinks;
+    if (projects !== undefined) updatedFields.projects = projects;
     if (hourlyRate !== undefined) updatedFields.hourlyRate = hourlyRate;
     if (availability !== undefined) updatedFields.availability = availability;
     if (companyName !== undefined) updatedFields.companyName = companyName;
     if (companyWebsite !== undefined) updatedFields.companyWebsite = companyWebsite;
     if (socialLinks !== undefined) updatedFields.socialLinks = socialLinks;
-    if (experienceLevel !== undefined) (updatedFields as any).experienceLevel = experienceLevel;
-
+    if (experienceLevel !== undefined) updatedFields.experienceLevel = experienceLevel;
+    if (ProfileSetupComplete !== undefined) updatedFields.ProfileSetupComplete = ProfileSetupComplete;
 
     const userProfile = await UserProfileModel.findByIdAndUpdate(
       req.user.id,
