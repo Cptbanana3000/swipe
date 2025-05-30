@@ -10,6 +10,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { UserProfile } from '@swipe/shared';
 import { getMyProfile, updateMyProfile } from '@/services/userService'; // Make sure path is correct
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Define experience level options
+const experienceLevels = [
+    "Entry-Level (0-1 year)",
+    "Junior (1-3 years)",
+    "Mid-Level (3-5 years)",
+    "Senior (5+ years)",
+    "Expert (10+ years)"
+  ];
+
 const EditProfilePage = () => {
   const { token } = useAuth(); // Get token to ensure user is logged in before fetching
   const navigate = useNavigate();
@@ -26,6 +37,7 @@ const EditProfilePage = () => {
     companyName: '',
     companyWebsite: '',
     socialLinks: { linkedin: '', github: '', website: ''},
+    experienceLevel: '',
     // profilePictureUrl is not handled in this basic form for simplicity
   });
   const [isLoading, setIsLoading] = useState(true); // For initial data load
@@ -50,6 +62,7 @@ const EditProfilePage = () => {
             companyName: currentProfile.companyName || '',
             companyWebsite: currentProfile.companyWebsite || '',
             socialLinks: currentProfile.socialLinks || { linkedin: '', github: '', website: ''},
+            experienceLevel: currentProfile.experienceLevel || '',
           });
           setError(null);
         } catch (err: any) {
@@ -167,6 +180,11 @@ const EditProfilePage = () => {
                 <div className="space-y-1.5">
                     <Label htmlFor="availability">Availability</Label>
                     <Input name="availability" id="availability" placeholder="e.g., Full-time, Part-time (20hrs/week)" value={formData.availability} onChange={handleChange} disabled={isSaving} />
+                </div>
+
+                <div className="space-y-1.5">
+                    <Label htmlFor="experienceLevel">Experience Level</Label>
+                    <Input name="experienceLevel" id="experienceLevel" placeholder="e.g., Entry, Mid, Senior" value={formData.experienceLevel} onChange={handleChange} disabled={isSaving} />
                 </div>
             </div>
             {/* Add more fields like companyName, companyWebsite, socialLinks here */}

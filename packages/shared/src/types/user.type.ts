@@ -19,6 +19,7 @@ export interface User {
   bio?: string;
   skills?: string[];
   portfolioLinks?: string[];
+  experienceLevel?: string;
   // Freelancer specific (optional for now)
   hourlyRate?: number;
   availability?: string;

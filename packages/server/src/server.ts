@@ -147,6 +147,7 @@ app.put('/api/profile/me', authMiddleware, (async (req: Request, res: Response) 
       availability,
       companyName,
       companyWebsite,
+      experienceLevel,
       socialLinks
     } = req.body;
 
@@ -164,6 +165,8 @@ app.put('/api/profile/me', authMiddleware, (async (req: Request, res: Response) 
     if (companyName !== undefined) updatedFields.companyName = companyName;
     if (companyWebsite !== undefined) updatedFields.companyWebsite = companyWebsite;
     if (socialLinks !== undefined) updatedFields.socialLinks = socialLinks;
+    if (experienceLevel !== undefined) (updatedFields as any).experienceLevel = experienceLevel;
+
 
     const userProfile = await UserProfileModel.findByIdAndUpdate(
       req.user.id,

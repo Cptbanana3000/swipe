@@ -63,6 +63,7 @@ const UserProfileSchema: Schema<IUserProfileDocument> = new Schema(
     location: { type: String, trim: true },
     headline: { type: String, trim: true },
     hourlyRate: { type: Number },
+    experienceLevel: { type: String, trim: true },
     availability: { type: String, trim: true },
     companyName: { type: String, trim: true },
     companyWebsite: { type: String, trim: true },
